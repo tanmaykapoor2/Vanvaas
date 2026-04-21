@@ -1,21 +1,608 @@
-<section class="show-section">
-  <div class="show-container">
-    <div class="show-image">
-      <img src="<%= camp.image %>" alt="camp image" />
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= camp.title %> - Vanvaas</title>
 
-    <div class="show-content">
-      <h2><%= camp.title %></h2>
-      <p class="location"><%= camp.location %></p>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-      <p class="description"><%= camp.description %></p>
+    <style>
+      :root {
+        --bg-main: #0f1f1a;
+        --panel: rgba(27, 47, 40, 0.95);
+        --card-bg: #1b2f28;
+        --accent: #3a7d44;
+        --accent-light: #52b788;
+        --accent-orange: #f4a261;
+        --text: #e9f5ee;
+        --muted: #a8c5b3;
+        --border: #2d4a3e;
+        --input-bg: #152520;
+        --danger: #e05252;
+      }
 
-      <div class="price">₹ <%= camp.price %> / night</div>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
 
-      <div class="show-buttons">
-        <a href="/campgrounds" class="btn-outline">Back</a>
-        <a href="/camps/<%= camp._id %>/edit" class="btn-primary">Edit</a>
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, var(--bg-main), #0a1612);
+        min-height: 100vh;
+        color: var(--text);
+      }
+
+      /* ---- NAVBAR ---- */
+      .navbar {
+        background: rgba(15, 31, 26, 0.97);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        padding: 0.85rem 2rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .navbar-brand {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--accent-light) !important;
+        text-decoration: none;
+      }
+      .nav-link {
+        color: var(--muted) !important;
+        font-size: 0.88rem;
+        font-weight: 500;
+        padding: 0.4rem 0.85rem !important;
+        border-radius: 6px;
+        transition: all 0.2s;
+      }
+      .nav-link:hover { color: var(--text) !important; background: rgba(82,183,136,0.08); }
+      .btn-nav-primary {
+        background: var(--accent-orange);
+        color: #1a0a00 !important;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 0.4rem 1rem !important;
+        transition: all 0.2s;
+      }
+      .btn-nav-primary:hover { background: #e8914d; transform: translateY(-1px); }
+      .btn-nav-outline {
+        border: 1px solid var(--accent-light);
+        color: var(--accent-light) !important;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        padding: 0.4rem 1rem !important;
+        transition: all 0.2s;
+      }
+      .btn-nav-outline:hover { background: rgba(82,183,136,0.1); }
+
+      /* ---- MAIN LAYOUT ---- */
+      .show-wrapper {
+        max-width: 1200px;
+        margin: 2.5rem auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Back link */
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        transition: color 0.2s;
+      }
+      .back-link:hover { color: var(--accent-light); }
+
+      /* ---- TWO COLUMN ---- */
+      .show-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: start;
+      }
+
+      @media (max-width: 768px) {
+        .show-grid { grid-template-columns: 1fr; }
+      }
+
+      /* ---- LEFT: CAMP DETAILS ---- */
+      .camp-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
+      .camp-image {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .camp-image-placeholder {
+        width: 100%;
+        height: 300px;
+        background: linear-gradient(135deg, #1b3a2d, #0f2218);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+      }
+
+      .camp-body {
+        padding: 1.5rem;
+      }
+
+      .camp-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+      }
+
+      .camp-description {
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.7;
+        margin-bottom: 1rem;
+      }
+
+      .camp-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .camp-location {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .camp-price {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--accent-orange);
+      }
+
+      .camp-created {
+        font-size: 0.8rem;
+        color: var(--muted);
+        opacity: 0.7;
+      }
+
+      .camp-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .btn-edit {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 0.5rem 1.2rem;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .btn-edit:hover { background: #2d6235; color: white; transform: translateY(-1px); }
+
+      .btn-delete {
+        background: transparent;
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        padding: 0.5rem 1.2rem;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .btn-delete:hover { background: var(--danger); color: white; transform: translateY(-1px); }
+
+      /* ---- RIGHT: REVIEW PANEL ---- */
+      .review-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .review-form-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+      }
+
+      .review-form-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+        color: var(--text);
+      }
+
+      .review-form-subtitle {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin-bottom: 1.2rem;
+      }
+
+      .form-label {
+        color: var(--muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 0.4rem;
+      }
+
+      /* Star Rating */
+      .star-rating {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 1rem;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+      }
+
+      .star-rating input {
+        display: none;
+      }
+
+      .star-rating label {
+        font-size: 1.8rem;
+        color: var(--border);
+        cursor: pointer;
+        transition: color 0.15s;
+      }
+
+      .star-rating input:checked ~ label,
+      .star-rating label:hover,
+      .star-rating label:hover ~ label {
+        color: #f4a261;
+      }
+
+      .review-textarea {
+        width: 100%;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        padding: 0.75rem 1rem;
+        font-family: "Poppins", sans-serif;
+        font-size: 0.9rem;
+        resize: vertical;
+        min-height: 100px;
+        transition: border-color 0.2s;
+      }
+      .review-textarea::placeholder { color: var(--muted); opacity: 0.6; }
+      .review-textarea:focus {
+        outline: none;
+        border-color: var(--accent-light);
+        box-shadow: 0 0 0 3px rgba(82,183,136,0.1);
+      }
+
+      .btn-add-review {
+        width: 100%;
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 0.7rem;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 0.75rem;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      .btn-add-review:hover { background: #2d6235; transform: translateY(-1px); }
+
+      /* ---- REVIEW CARDS ---- */
+      .reviews-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .review-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.2rem;
+        transition: border-color 0.2s;
+      }
+      .review-card:hover { border-color: var(--accent); }
+
+      .review-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.6rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .review-author {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--accent-light);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .stars-display {
+        color: var(--accent-orange);
+        font-size: 0.95rem;
+        letter-spacing: 1px;
+      }
+
+      .review-body-text {
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 0.8rem;
+      }
+
+      .review-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .review-date {
+        font-size: 0.78rem;
+        color: var(--muted);
+        opacity: 0.6;
+      }
+
+      .review-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .btn-review-edit {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 0.3rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+      }
+      .btn-review-edit:hover { background: #2d6235; color: white; }
+
+      .btn-review-delete {
+        background: transparent;
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        padding: 0.3rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-review-delete:hover { background: var(--danger); color: white; }
+
+      .no-reviews {
+        text-align: center;
+        color: var(--muted);
+        padding: 2rem;
+        background: var(--card-bg);
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        font-size: 0.9rem;
+      }
+
+      /* Login prompt */
+      .login-prompt {
+        background: rgba(58, 125, 68, 0.1);
+        border: 1px solid rgba(58, 125, 68, 0.3);
+        border-radius: 12px;
+        padding: 1.2rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .login-prompt a { color: var(--accent-light); font-weight: 600; text-decoration: none; }
+      .login-prompt a:hover { text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid px-3">
+        <a class="navbar-brand" href="/">🌲 Vanvaas</a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+          <span class="navbar-toggler-icon" style="filter: invert(1)"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="navbar-nav ms-auto align-items-center gap-1">
+            <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house"></i> Home</a></li>
+            <li class="nav-item"><a class="nav-link btn-nav-outline" href="/campgrounds"><i class="bi bi-tree"></i> Campgrounds</a></li>
+            <% if (user) { %>
+              <li class="nav-item"><a class="nav-link btn-nav-primary" href="/camps/new"><i class="bi bi-plus-circle"></i> New Campground</a></li>
+              <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-person-circle"></i> <%= user.username %></a></li>
+              <li class="nav-item"><a class="nav-link" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+            <% } else { %>
+              <li class="nav-item"><a class="nav-link" href="/register"><i class="bi bi-person-plus"></i> Sign Up</a></li>
+              <li class="nav-item"><a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right"></i> Log In</a></li>
+            <% } %>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="show-wrapper">
+
+      <a href="/campgrounds" class="back-link">
+        <i class="bi bi-arrow-left"></i> Back to Campgrounds
+      </a>
+
+      <div class="show-grid">
+
+        <!-- LEFT: CAMP INFO -->
+        <div class="camp-card">
+          <% if (camp.image) { %>
+            <img src="<%= camp.image %>" alt="<%= camp.title %>" class="camp-image" />
+          <% } else { %>
+            <div class="camp-image-placeholder">🏕️</div>
+          <% } %>
+
+          <div class="camp-body">
+            <h1 class="camp-title">🌲 <%= camp.title %></h1>
+            <p class="camp-description"><%= camp.description || 'No description provided.' %></p>
+
+            <div class="camp-meta">
+              <div class="camp-location">
+                <i class="bi bi-geo-alt-fill" style="color: var(--accent-light)"></i>
+                <%= camp.location %>
+              </div>
+              <div class="camp-price">₹<%= camp.price %>/night</div>
+              <div class="camp-created">
+                <i class="bi bi-clock"></i>
+                Listed <%= camp.createdAt ? new Date(camp.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'recently' %>
+              </div>
+            </div>
+
+            <% if (user) { %>
+              <div class="camp-actions">
+
+                <form action="/camps/<%= camp._id %>?_method=DELETE" method="POST" style="margin:0">
+                  <button type="submit" class="btn-delete" onclick="return confirm('Delete this campground?')">
+                    <i class="bi bi-trash-fill"></i> Delete
+                  </button>
+                </form>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- RIGHT: REVIEWS -->
+        <div class="review-panel">
+
+          <!-- Review Form -->
+            <div class="review-form-card">
+              <h2 class="review-form-title">Leave a Review!</h2>
+              <p class="review-form-subtitle">Share your experience at this campground</p>
+
+              <form action="/camps/<%= camp._id %>/reviews" method="POST">
+                <div class="mb-3">
+                  <label class="form-label">Rating</label>
+                  <div class="star-rating">
+                    <input type="radio" id="star5" name="rating" value="5" />
+                    <label for="star5" title="5 stars"><i class="bi bi-star-fill"></i></label>
+                    <input type="radio" id="star4" name="rating" value="4" />
+                    <label for="star4" title="4 stars"><i class="bi bi-star-fill"></i></label>
+                    <input type="radio" id="star3" name="rating" value="3" checked />
+                    <label for="star3" title="3 stars"><i class="bi bi-star-fill"></i></label>
+                    <input type="radio" id="star2" name="rating" value="2" />
+                    <label for="star2" title="2 stars"><i class="bi bi-star-fill"></i></label>
+                    <input type="radio" id="star1" name="rating" value="1" />
+                    <label for="star1" title="1 star"><i class="bi bi-star-fill"></i></label>
+                  </div>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label">Review</label>
+                  <textarea
+                    name="body"
+                    class="review-textarea"
+                    placeholder="What was your experience like?"
+                    rows="4"
+                    required
+                  ></textarea>
+                </div>
+
+                <button type="submit" class="btn-add-review">
+                  <i class="bi bi-send-fill"></i> Add Review
+                </button>
+              </form>
+            </div>
+
+          <!-- Reviews List -->
+          <div class="reviews-list">
+            <% if (camp.reviews && camp.reviews.length > 0) { %>
+              <% for (let review of camp.reviews) { %>
+                <div class="review-card">
+                  <div class="review-card-header">
+                    <span class="review-author">
+                      <i class="bi bi-person-circle"></i>
+                      <%= review.author ? review.author.username : 'Anonymous' %>
+                    </span>
+                    <span class="stars-display">
+                      <% for (let i = 1; i <= 5; i++) { %>
+                        <% if (i <= review.rating) { %><i class="bi bi-star-fill"></i><% } else { %><i class="bi bi-star" style="color:var(--border)"></i><% } %>
+                      <% } %>
+                    </span>
+                  </div>
+
+                  <p class="review-body-text"><%= review.body %></p>
+
+                  <div class="review-card-footer">
+                    <span class="review-date">
+                      <i class="bi bi-clock"></i>
+                      <%= new Date(review.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                    </span>
+                    <% if (user && review.author && review.author._id.equals(user._id)) { %>
+                      <div class="review-actions">
+
+                        <form action="/camps/<%= camp._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST" style="margin:0">
+                          <button type="submit" class="btn-review-delete" onclick="return confirm('Delete this review?')">
+                            <i class="bi bi-trash"></i> Delete
+                          </button>
+                        </form>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              <% } %>
+            <% } else { %>
+              <div class="no-reviews">
+                <i class="bi bi-chat-dots" style="font-size:1.5rem; display:block; margin-bottom:0.5rem; color:var(--muted)"></i>
+                No reviews yet. Be the first to share your experience!
+              </div>
+            <% } %>
+          </div>
+
+        </div>
       </div>
     </div>
-  </div>
-</section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

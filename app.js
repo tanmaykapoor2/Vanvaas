@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 const session = require("express-session");
 const bcrypt = require("bcryptjs");
+const methodOverride = require("method-override");
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(methodOverride("_method"));
 
 /* ================= SESSION ================= */
 
@@ -35,6 +37,7 @@ app.use(
 
 const User = require("./models/User");
 const Camp = require("./models/Camp");
+const Review = require("./models/Review");
 
 /* ================= GLOBAL USER MIDDLEWARE ================= */
 /* This safely makes user available in ALL EJS files */
@@ -130,10 +133,8 @@ app.post("/camps", async (req, res) => {
   if (!req.session.userId) {
     return res.redirect("/login");
   }
-
   const camp = new Camp(req.body);
   await camp.save();
-
   res.redirect("/campgrounds");
 });
 
@@ -141,6 +142,58 @@ app.post("/camps", async (req, res) => {
 app.get("/campgrounds", async (req, res) => {
   const camps = await Camp.find({});
   res.render("campgrounds", { camps });
+});
+
+// View Single Camp
+app.get("/camps/:id", async (req, res) => {
+  try {
+    const camp = await Camp.findById(req.params.id).populate({
+      path: "reviews",
+      populate: { path: "author", select: "username" },
+    });
+    if (!camp) return res.redirect("/campgrounds");
+    res.render("camps/show", { camp });
+  } catch (e) {
+    res.redirect("/campgrounds");
+  }
+});
+
+// Delete Camp
+app.delete("/camps/:id", async (req, res) => {
+  if (!req.session.userId) return res.redirect("/login");
+  const camp = await Camp.findById(req.params.id);
+  if (camp) {
+    await Review.deleteMany({ _id: { $in: camp.reviews } });
+    await camp.deleteOne();
+  }
+  res.redirect("/campgrounds");
+});
+
+/* ================= REVIEWS ================= */
+
+// Add Review
+app.post("/camps/:id/reviews", async (req, res) => {
+  const camp = await Camp.findById(req.params.id);
+  const review = new Review({
+    rating: req.body.rating,
+    body: req.body.body,
+  });
+  if (req.session.userId) {
+    review.author = req.session.userId;
+  }
+  await review.save();
+  camp.reviews.push(review);
+  await camp.save();
+  res.redirect(`/camps/${camp._id}`);
+});
+
+// Delete Review
+app.delete("/camps/:id/reviews/:reviewId", async (req, res) => {
+  if (!req.session.userId) return res.redirect("/login");
+  const { id, reviewId } = req.params;
+  await Camp.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+  await Review.findByIdAndDelete(reviewId);
+  res.redirect(`/camps/${id}`);
 });
 
 /* ================= SERVER ================= */

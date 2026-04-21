@@ -1,2 +1,12 @@
 node_modules/
 .env
+
+# MongoDB local files
+bin/
+data/
+macos_mongodb.plist
+sbom_from_silk.json
+LICENSE-Community.txt
+MPL-2
+README
+THIRD-PARTY-NOTICES
