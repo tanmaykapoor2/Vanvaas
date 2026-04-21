@@ -22,6 +22,7 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="/css/style.css" />
 
     <style>
       :root {
@@ -35,43 +36,36 @@
         --input-bg: #152520;
       }
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
 
       body {
         font-family: "Poppins", sans-serif;
         background: linear-gradient(135deg, var(--bg-primary), #0a1612);
         min-height: 100vh;
         display: flex;
-        align-items: center;
-        justify-content: center;
+        flex-direction: column;
         color: var(--text-primary);
-        padding: 20px;
       }
 
       .login-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         width: 100%;
         max-width: 440px;
+        margin: 0 auto;
+        padding: 20px;
       }
 
-      .brand {
-        text-align: center;
-        margin-bottom: 2rem;
-      }
-
+      .brand { text-align: center; margin-bottom: 2rem; }
       .brand h1 {
         font-size: 2rem;
         font-weight: 600;
         text-shadow: 0 2px 10px rgba(58, 125, 68, 0.4);
       }
-
-      .brand p {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-      }
+      .brand p { color: var(--text-secondary); font-size: 0.95rem; }
 
       .login-card {
         background: var(--bg-card);
@@ -81,33 +75,63 @@
         border: 1px solid var(--border);
       }
 
+      /* ── Error banner ── */
+      .alert-error {
+        background: rgba(224, 92, 92, 0.12);
+        border: 1px solid rgba(224, 92, 92, 0.3);
+        color: #f0a0a0;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
       .form-label {
         font-size: 0.85rem;
         margin-bottom: 0.4rem;
         color: var(--text-secondary);
       }
 
-      .input-group-custom {
-        position: relative;
-      }
+      .input-group-custom { position: relative; }
 
-      .input-group-custom i {
+      .input-group-custom .icon-left {
         position: absolute;
         left: 14px;
         top: 50%;
         transform: translateY(-50%);
         color: var(--accent-green);
         font-size: 1rem;
+        pointer-events: none;
       }
+
+      /* Toggle password button */
+      .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 0;
+        transition: color 0.2s;
+      }
+      .toggle-password:hover { color: var(--accent-orange); }
 
       .form-control {
         background: var(--input-bg);
         border: 1px solid var(--border);
         border-radius: 10px;
-        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        padding: 0.75rem 2.8rem 0.75rem 2.5rem;
         color: var(--text-primary);
         font-size: 0.9rem;
         transition: 0.3s ease;
+        width: 100%;
       }
 
       .form-control:focus {
@@ -115,27 +139,10 @@
         border-color: var(--accent-green);
         box-shadow: 0 0 0 3px rgba(58, 125, 68, 0.2);
         color: var(--text-primary);
+        outline: none;
       }
 
-      .form-control::placeholder {
-        color: var(--text-secondary);
-      }
-
-      .forgot-password {
-        text-align: right;
-        margin-top: -0.5rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .forgot-password a {
-        color: var(--text-secondary);
-        text-decoration: none;
-        font-size: 0.85rem;
-      }
-
-      .forgot-password a:hover {
-        color: var(--accent-orange);
-      }
+      .form-control::placeholder { color: var(--text-secondary); }
 
       .btn-login {
         width: 100%;
@@ -148,53 +155,15 @@
         color: var(--bg-primary);
         margin-top: 0.5rem;
         transition: 0.3s ease;
+        cursor: pointer;
       }
 
-      .btn-login:hover {
+      .btn-login:hover:not(:disabled) {
         transform: translateY(-2px);
         box-shadow: 0 10px 25px rgba(244, 162, 97, 0.4);
       }
 
-      .btn-home {
-        width: 100%;
-        background: transparent;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 0.85rem;
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--text-primary);
-        margin-top: 0.75rem;
-        text-align: center;
-        display: inline-block;
-        text-decoration: none;
-        transition: 0.3s ease;
-      }
-
-      .btn-home:hover {
-        background: var(--input-bg);
-        border-color: var(--accent-green);
-      }
-
-      .divider {
-        display: flex;
-        align-items: center;
-        text-align: center;
-        margin: 1.5rem 0;
-      }
-
-      .divider::before,
-      .divider::after {
-        content: "";
-        flex: 1;
-        border-bottom: 1px solid var(--border);
-      }
-
-      .divider span {
-        padding: 0 1rem;
-        color: var(--text-secondary);
-        font-size: 0.85rem;
-      }
+      .btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
 
       .footer-text {
         text-align: center;
@@ -209,19 +178,17 @@
         font-weight: 600;
       }
 
-      .footer-text a:hover {
-        text-decoration: underline;
-      }
+      .footer-text a:hover { text-decoration: underline; }
 
       @media (max-width: 576px) {
-        .login-card {
-          padding: 2rem 1.5rem;
-        }
+        .login-card { padding: 2rem 1.5rem; }
       }
     </style>
   </head>
 
   <body>
+    <%- include('../partials/navbar') %>
+
     <div class="login-container">
       <div class="brand">
         <h1>🌲 Vanvaas</h1>
@@ -229,34 +196,60 @@
       </div>
 
       <div class="login-card">
-        <form action="/login" method="POST">
+
+        <!-- ── Error banner: shown only when backend redirects with ?error=1 ── -->
+        <% if (query && query.error) { %>
+          <div class="alert-error" role="alert">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <!-- .textContent via EJS escaping prevents XSS in the message -->
+            <%= query.message || "Invalid username or password." %>
+          </div>
+        <% } %>
+
+        <form action="/login" method="POST" novalidate>
+
           <div class="mb-3">
-            <label class="form-label">Username</label>
+            <label for="loginUsername" class="form-label">Username</label>
             <div class="input-group-custom">
-              <i class="bi bi-person"></i>
+              <i class="bi bi-person icon-left"></i>
               <input
                 id="loginUsername"
                 type="text"
                 name="username"
                 class="form-control"
                 placeholder="Enter your username"
+                autocomplete="username"
+                autocapitalize="none"
+                autocorrect="off"
+                spellcheck="false"
+                maxlength="30"
                 required
               />
             </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Password</label>
+            <label for="loginPassword" class="form-label">Password</label>
             <div class="input-group-custom">
-              <i class="bi bi-lock"></i>
+              <i class="bi bi-lock icon-left"></i>
               <input
                 id="loginPassword"
                 type="password"
                 name="password"
                 class="form-control"
                 placeholder="Enter your password"
+                autocomplete="current-password"
+                maxlength="128"
                 required
               />
+              <button
+                type="button"
+                class="toggle-password"
+                id="togglePassword"
+                aria-label="Show password"
+              >
+                <i class="bi bi-eye" id="toggleIcon"></i>
+              </button>
             </div>
           </div>
 
@@ -268,5 +261,30 @@
         </div>
       </div>
     </div>
+
+    <script>
+      // Password visibility toggle
+      document.getElementById("togglePassword").addEventListener("click", function () {
+        const pwd = document.getElementById("loginPassword");
+        const icon = document.getElementById("toggleIcon");
+        const isHidden = pwd.type === "password";
+        pwd.type = isHidden ? "text" : "password";
+        icon.className = isHidden ? "bi bi-eye-slash" : "bi bi-eye";
+        this.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
+      });
+
+      // Prevent double submit
+      document.querySelector("form").addEventListener("submit", function () {
+        const btn = document.getElementById("loginBtn");
+        btn.disabled = true;
+        btn.textContent = "Signing in…";
+        // Re-enable after 6s in case of network error
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = "Sign In";
+        }, 6000);
+      });
+    </script>
+    <%- include('../partials/footer') %>
   </body>
 </html>
