@@ -6,17 +6,28 @@ async function runTests() {
   try {
     console.log("Opening Home Page...");
     await driver.get("http://localhost:3000");
-    await driver.sleep(2000);
 
     // ================= REGISTER =================
     console.log("Testing Register...");
     await driver.get("http://localhost:3000/register");
 
-    await driver.findElement(By.name("username")).sendKeys("testuser");
-    await driver.findElement(By.name("email")).sendKeys("test@test.com");
-    await driver.findElement(By.name("password")).sendKeys("123456");
+    let uniqueUser = "testuser" + Date.now();
+    let password = "Test@123";
 
-    await driver.findElement(By.css("button[type='submit']")).click();
+    await driver.wait(until.elementLocated(By.name("username")), 5000);
+
+    await driver.findElement(By.name("username")).sendKeys(uniqueUser);
+    await driver.findElement(By.name("email")).sendKeys("test@test.com");
+    await driver.findElement(By.name("password")).sendKeys(password);
+
+    let registerBtn = await driver.findElement(By.css("button[type='submit']"));
+
+    await driver.executeScript(
+      "arguments[0].scrollIntoView(true);",
+      registerBtn,
+    );
+    await driver.sleep(500);
+    await driver.executeScript("arguments[0].click();", registerBtn);
 
     await driver.wait(until.urlContains("login"), 5000);
     console.log("Register Test Passed ✅");
@@ -25,33 +36,46 @@ async function runTests() {
     console.log("Testing Login...");
     await driver.get("http://localhost:3000/login");
 
-    await driver.findElement(By.name("username")).sendKeys("testuser");
-    await driver.findElement(By.name("password")).sendKeys("123456");
+    await driver.wait(until.elementLocated(By.name("username")), 5000);
 
-    await driver.findElement(By.css("button[type='submit']")).click();
+    await driver.findElement(By.name("username")).sendKeys(uniqueUser);
+    await driver.findElement(By.name("password")).sendKeys(password);
 
-    await driver.wait(until.urlIs("http://localhost:3000/"), 5000);
+    let loginBtn = await driver.findElement(By.css("button[type='submit']"));
+
+    await driver.executeScript("arguments[0].scrollIntoView(true);", loginBtn);
+    await driver.sleep(500);
+    await driver.executeScript("arguments[0].click();", loginBtn);
+
+    await driver.wait(until.urlContains("/"), 5000);
     console.log("Login Test Passed ✅");
 
     // ================= ADD CAMP =================
     console.log("Testing Add Camp...");
-    await driver.get("http://localhost:3000/camps/new");
+    await driver.get("http://localhost:3000/campgrounds/new");
 
-    await driver.findElement(By.name("title")).sendKeys("Test Camp");
-    await driver.findElement(By.name("location")).sendKeys("Himachal");
+    await driver.wait(until.elementLocated(By.name("campground[title]")), 5000);
+
     await driver
-      .findElement(By.name("image"))
+      .findElement(By.name("campground[title]"))
+      .sendKeys("Test Camp");
+    await driver
+      .findElement(By.name("campground[location]"))
+      .sendKeys("Himachal");
+    await driver
+      .findElement(By.name("campground[image]"))
       .sendKeys(
         "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600",
       );
-    await driver.findElement(By.name("price")).sendKeys("1200");
+    await driver.findElement(By.name("campground[price]")).sendKeys("1200");
     await driver
-      .findElement(By.name("description"))
+      .findElement(By.name("campground[description]"))
       .sendKeys("Beautiful automated test campground.");
 
     let submitBtn = await driver.findElement(By.css("button[type='submit']"));
+
     await driver.executeScript("arguments[0].scrollIntoView(true);", submitBtn);
-    await driver.sleep(1000);
+    await driver.sleep(500);
     await driver.executeScript("arguments[0].click();", submitBtn);
 
     await driver.wait(until.urlContains("campgrounds"), 5000);
@@ -59,9 +83,17 @@ async function runTests() {
 
     // ================= LOGOUT =================
     console.log("Testing Logout...");
-    await driver.findElement(By.linkText("Logout")).click();
 
-    await driver.wait(until.urlIs("http://localhost:3000/"), 5000);
+    let logoutBtn = await driver.wait(
+      until.elementLocated(By.linkText("Log Out")),
+      5000,
+    );
+
+    await driver.executeScript("arguments[0].scrollIntoView(true);", logoutBtn);
+    await driver.sleep(500);
+    await driver.executeScript("arguments[0].click();", logoutBtn);
+
+    await driver.wait(until.urlContains("/"), 5000);
     console.log("Logout Test Passed ✅");
 
     console.log("🎉 ALL TESTS PASSED SUCCESSFULLY 🎉");

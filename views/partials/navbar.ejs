@@ -1,0 +1,180 @@
+<style>
+  /* Navbar */
+  .navbar-custom {
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .navbar-brand {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text) !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    transition: 0.3s ease;
+  }
+
+  .navbar-brand:hover {
+    color: var(--accent-light) !important;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .nav-link-custom {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: 0.3s ease;
+  }
+
+  .nav-link-custom:hover {
+    color: var(--text);
+    background: rgba(58, 125, 68, 0.2);
+  }
+
+  .btn-auth {
+    background: transparent;
+    border: 1px solid var(--accent-light);
+    color: var(--accent-light);
+    padding: 8px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-auth:hover {
+    background: var(--accent-light);
+    color: var(--bg-main);
+  }
+
+  .user-welcome {
+    color: var(--accent-light);
+    font-weight: 600;
+    padding: 10px 15px;
+    background: rgba(58, 125, 68, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-logout {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .btn-logout:hover {
+    background: rgba(244, 162, 97, 0.2);
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+  }
+
+  .mobile-menu-toggle {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--panel);
+      flex-direction: column;
+      padding: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .nav-links.show {
+      display: flex;
+    }
+
+    .mobile-menu-toggle {
+      display: block;
+    }
+  }
+</style>
+
+<nav class="navbar-custom">
+  <div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center w-100">
+
+      <a href="/" class="navbar-brand">
+        🌲 Vanvaas
+      </a>
+
+      <button class="mobile-menu-toggle" onclick="toggleMenu()">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="nav-links" id="navLinks">
+        <a href="/" class="nav-link-custom">
+          <i class="bi bi-house-door"></i> Home
+        </a>
+        <a href="/campgrounds" class="nav-link-custom">
+          <i class="bi bi-pin-map"></i> Campgrounds
+        </a>
+        <a href="/camps/new" class="nav-link-custom">
+          <i class="bi bi-plus-circle"></i> New Campground
+        </a>
+
+        <div style="width: 20px"></div>
+
+        <% if (user) { %>
+          <span class="user-welcome">
+            <i class="bi bi-person-circle"></i>
+            <%= user.username %>
+          </span>
+          <a href="/logout" class="btn-auth btn-logout">
+            <i class="bi bi-box-arrow-right"></i> Log Out
+          </a>
+        <% } else { %>
+          <a href="/register" class="btn-auth">
+            <i class="bi bi-person-plus"></i> Sign Up
+          </a>
+          <a href="/login" class="btn-auth">
+            <i class="bi bi-box-arrow-in-right"></i> Log In
+          </a>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('show');
+  }
+</script>
